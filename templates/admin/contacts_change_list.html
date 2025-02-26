@@ -1,0 +1,64 @@
+{% extends "admin/change_list.html" %}
+{% load i18n %}
+
+{% block object-tools-items %}
+    {{ block.super }}
+    <li>
+        <a href="import/" class="import-link">{% trans "Import" %}</a>
+    </li>
+    <li>
+        <a href="export/{{ cl.get_query_string }}" class="export-link">{% trans "Export" %}</a>
+    </li>
+{% endblock %}
+
+{% block content %}
+<div class="birthday-panel" style="margin-bottom: 20px; padding: 15px; background: #f8f8f8; border: 1px solid #ddd;">
+    <h2>🎉 Today's Birthdays</h2>
+    {% if birthdays_today %}
+        <form method="post" action="{% url 'admin:messaging_contact_changelist' %}">
+            {% csrf_token %}
+            <div style="margin: 10px 0">
+                <label>
+                    <input type="checkbox" id="select-all"> Select All
+                </label>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                {% for contact in birthdays_today %}
+                <div class="contact-card" style="padding: 10px; border: 1px solid #eee;">
+                    <label style="display: block;">
+                        <input type="checkbox" name="contact_ids" value="{{ contact.id }}">
+                        {{ contact.first_name }} {{ contact.last_name }}
+                        <br>
+                        <small>{{ contact.phone_number }}</small>
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button type="submit" name="send_birthday" class="button" style="padding: 10px 20px; background: #4CAF50; color: white; border: none;">
+                    🎂 Send Birthday Messages to Selected
+                </button>
+            </div>
+        </form>
+    {% else %}
+        <p>No birthdays today 🎈</p>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAll = document.querySelector('#select-all');
+    const checkboxes = document.querySelectorAll('input[name="contact_ids"]');
+    
+    selectAll.addEventListener('change', function(e) {
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = e.target.checked;
+        });
+    });
+});
+</script>
+
+{{ block.super }}
+{% endblock %} 
